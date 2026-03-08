@@ -81,6 +81,7 @@ function amendFirstCommit() {
   }
   run('git add -A');
   run('git commit --amend -m "chore: first commit"');
+  run('git push --force');
   console.log('✓ Primeiro commit atualizado (mensagem: "chore: first commit")');
 }
 
