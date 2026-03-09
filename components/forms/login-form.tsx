@@ -1,4 +1,10 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -9,49 +15,90 @@ import {
   FieldSeparator,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import Image from 'next/image';
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const supabase = createClient();
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+
+    if (authError) {
+      setError(authError.message);
+    } else {
+      // redirect on success
+      router.push('/');
+    }
+  };
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
+          <form className="p-6 md:p-8" onSubmit={handleSubmit}>
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
+                <h1 className="text-2xl font-bold">Bem-vindo de volta</h1>
                 <p className="text-muted-foreground text-balance">
-                  Login to your Acme Inc account
+                  Faça login na sua conta da Acme Inc
                 </p>
               </div>
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="email">E-mail</FieldLabel>
                 <Input
                   id="email"
                   type="email"
                   placeholder="m@example.com"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </Field>
               <Field>
                 <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
+                  <FieldLabel htmlFor="password">Senha</FieldLabel>
+                  <Link
+                    href="/forgot-password"
                     className="ml-auto text-sm underline-offset-2 hover:underline"
                   >
-                    Forgot your password?
-                  </a>
+                    Esqueceu sua senha?
+                  </Link>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </Field>
+              {error && (
+                <p className="text-center text-sm text-red-500">{error}</p>
+              )}
               <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Entrando…' : 'Entrar'}
+                </Button>
               </Field>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                Or continue with
+                Ou continue com
               </FieldSeparator>
               <Field className="grid grid-cols-3 gap-4">
                 <Button variant="outline" type="button">
@@ -83,22 +130,27 @@ export function LoginForm({
                 </Button>
               </Field>
               <FieldDescription className="text-center">
-                Don&apos;t have an account? <a href="#">Sign up</a>
+                Don&apos;t have an account?{' '}
+                <a href="/signup" className="underline hover:opacity-80">
+                  Cadastre-se
+                </a>
               </FieldDescription>
             </FieldGroup>
           </form>
           <div className="bg-muted relative hidden md:block">
-            <img
-              src="/placeholder.svg"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+            <Image
+              src="/auth.jpg"
+              alt="Imagem de fundo"
+              fill
+              className="object-cover dark:brightness-[0.2] dark:grayscale"
             />
           </div>
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{' '}
-        and <a href="#">Privacy Policy</a>.
+        Ao clicar em continuar, você concorda com nossos{' '}
+        <Link href="#">Termos de Serviço</Link> e{' '}
+        <Link href="#">Política de Privacidade</Link>.
       </FieldDescription>
     </div>
   );
