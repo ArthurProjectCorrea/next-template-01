@@ -1,26 +1,63 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
 
-// helper to inspect auth cookie (Supabase session)
-function isAuthenticated(request: NextRequest): boolean {
-  const token = request.cookies.get('sb-access-token')?.value;
-  return !!token;
-}
+export async function proxy(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({
+    request,
+  });
 
-export function proxy(request: NextRequest) {
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY! ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            request.cookies.set(name, value)
+          );
+          supabaseResponse = NextResponse.next({
+            request,
+          });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
+  // refreshing the auth token
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   // if hitting /private, block unauthenticated users before rendering
   if (
     request.nextUrl.pathname === '/private' ||
     request.nextUrl.pathname.startsWith('/private/')
   ) {
-    if (!isAuthenticated(request)) {
+    if (!user) {
       // redirect to login page
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
-  return NextResponse.next();
+
+  return supabaseResponse;
 }
 
 export const config = {
-  matcher: ['/private/:path*'],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * Feel free to modify this pattern to include more paths.
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };

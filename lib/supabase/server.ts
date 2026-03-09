@@ -1,21 +1,36 @@
-import {
-  createClient as createSupabaseClient,
-  type SupabaseClient,
-} from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
-// helper that returns a Supabase client using the values from the environment
-// variables described in docs/supabase/quickstarts.md.  The values are
-// marked `NEXT_PUBLIC` so they can be accessed on both the server and in the
-// browser; we throw early if they're missing so errors are easier to diagnose.
-export function createClient(): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+export async function createClient() {
+  const cookieStore = await cookies();
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY! ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
   if (!url || !key) {
     throw new Error(
-      'Missing Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)'
+      'Missing Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)'
     );
   }
 
-  return createSupabaseClient(url, key);
+  return createServerClient(url, key, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          );
+        } catch {
+          // The `setAll` method was called from a Server Component.
+          // This can be ignored if you have middleware refreshing
+          // user sessions.
+        }
+      },
+    },
+  });
 }
