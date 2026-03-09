@@ -11,9 +11,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogoutButton } from '@/components/auth/logout-button';
 import { ModeToggle } from '@/components/mode-toggle';
+import { Badge } from '@/components/ui/badge';
+import { getProjectVersion } from '@/lib/version';
 
 export default async function PrivatePage() {
   const supabase = await createClient();
+  const version = getProjectVersion();
 
   const {
     data: { user },
@@ -47,6 +50,12 @@ export default async function PrivatePage() {
           <div className="space-y-1">
             <CardTitle className="text-2xl">{name}</CardTitle>
             <CardDescription>{email}</CardDescription>
+            <Badge
+              variant="outline"
+              className="mt-2 font-mono text-[10px] opacity-60"
+            >
+              v{version}
+            </Badge>
           </div>
         </CardHeader>
         <CardContent className="text-center">
