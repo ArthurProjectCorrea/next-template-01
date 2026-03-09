@@ -1,3 +1,9 @@
+# [1.1.0](https://github.com/ArthurProjectCorrea/next-template-01/compare/v1.0.0...v1.1.0) (2026-03-09)
+
+### Features
+
+- implement supabase authentication with login, signup, oauth, logout, and legal content pages ([18c5501](https://github.com/ArthurProjectCorrea/next-template-01/commit/18c5501039e9afe1707098725717fee350a88e80))
+
 # 1.0.0 (2026-03-09)
 
 ### Features
