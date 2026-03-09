@@ -1,3 +1,9 @@
+# [1.2.0](https://github.com/ArthurProjectCorrea/next-template-01/compare/v1.1.0...v1.2.0) (2026-03-09)
+
+### Features
+
+- implement user authentication password recovery, and reset functionalities ([c8e0de0](https://github.com/ArthurProjectCorrea/next-template-01/commit/c8e0de0602ea4787eb7e726f9b524c32bb37b23e))
+
 # [1.1.0](https://github.com/ArthurProjectCorrea/next-template-01/compare/v1.0.0...v1.1.0) (2026-03-09)
 
 ### Features
