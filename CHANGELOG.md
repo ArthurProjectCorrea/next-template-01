@@ -1,3 +1,9 @@
+# [1.3.0](https://github.com/ArthurProjectCorrea/next-template-01/compare/v1.2.0...v1.3.0) (2026-03-09)
+
+### Features
+
+- implement supabase authentication, and update project documentation ([3bd302d](https://github.com/ArthurProjectCorrea/next-template-01/commit/3bd302d77e110416e7f9cbe46e0b9362f7fa255a))
+
 # [1.2.0](https://github.com/ArthurProjectCorrea/next-template-01/compare/v1.1.0...v1.2.0) (2026-03-09)
 
 ### Features
