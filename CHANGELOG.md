@@ -1,3 +1,9 @@
+# [1.4.0](https://github.com/ArthurProjectCorrea/next-template-01/compare/v1.3.0...v1.4.0) (2026-03-15)
+
+### Features
+
+- disable commit header and body line length rules in commitlint configuration. ([04f3c68](https://github.com/ArthurProjectCorrea/next-template-01/commit/04f3c6859464ba8d278867c3b7920696e2251894))
+
 # [1.3.0](https://github.com/ArthurProjectCorrea/next-template-01/compare/v1.2.0...v1.3.0) (2026-03-09)
 
 ### Features
